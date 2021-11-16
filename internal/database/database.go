@@ -1,20 +1,18 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"time"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-type API struct {
-	Id      int64
-	OpenAPI []byte
-}
-
 type Db struct {
-	*gorm.DB
+	*mongo.Database
 }
 
 func Connect() (*Db, error) {
@@ -30,23 +28,27 @@ func Connect() (*Db, error) {
 	if password == "" {
 		return nil, fmt.Errorf("DB_PASSWORD is empty")
 	}
-	dbname := os.Getenv("DB_DATABASE")
+	dbname := os.Getenv("DB_NAME")
 	if dbname == "" {
-		return nil, fmt.Errorf("DB_DATABASE is empty")
+		return nil, fmt.Errorf("DB_NAME is empty")
 	}
 	port := os.Getenv("DB_PORT")
 	if port == "" {
 		return nil, fmt.Errorf("DB_PORT is empty")
 	}
+	dsn := "mongodb://localhost"
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
+	if err != nil {
+		return nil, err
+	}
+	defer cancel()
+	err = client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		return nil, err
+	}
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Europe/Berlin", host, user, password, dbname, port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-	err = db.AutoMigrate(API{})
-	if err != nil {
-		return nil, err
-	}
+	db := client.Database("api-gateway")
 	return &Db{db}, nil
 }

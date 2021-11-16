@@ -2,10 +2,15 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"time"
 
+	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
 	"github.com/team-api-gateway/api-gw-backend/internal/crawler"
 	"github.com/team-api-gateway/api-gw-backend/internal/database"
+	"github.com/team-api-gateway/api-gw-backend/internal/handler"
+	"github.com/team-api-gateway/api-gw-backend/internal/sync"
 )
 
 func main() {
@@ -19,7 +24,6 @@ func main() {
 
 	crawl := crawler.New([]string{
 		"https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/petstore.yaml",
-		"https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v2.0/yaml/petstore-simple.yaml",
 		"https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/callback-example.json",
 		"https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/link-example.yaml",
 	})
@@ -28,12 +32,24 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(specs)
-	for _, spec := range specs {
-		err := db.InsertAPI(spec)
+
+	cron := gocron.NewScheduler(time.Local)
+	cron.Every(10).Minutes().Do(func() {
+		err = sync.Sync(db, specs)
 		if err != nil {
 			fmt.Println(err)
-			return
 		}
+	})
+	cron.StartAsync()
+
+	router := handler.NewRouter()
+	h := handler.NewHandler(db)
+
+	router.Mount("/", h.Routes())
+
+	err = http.ListenAndServe(":8080", router)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 }
