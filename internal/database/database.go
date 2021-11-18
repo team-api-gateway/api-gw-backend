@@ -36,7 +36,7 @@ func Connect() (*Db, error) {
 	if port == "" {
 		return nil, fmt.Errorf("DB_PORT is empty")
 	}
-	dsn := "mongodb://localhost"
+	dsn := "mongodb://" + user + ":" + password + "@" + host + ":" + port
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
@@ -49,6 +49,6 @@ func Connect() (*Db, error) {
 		return nil, err
 	}
 
-	db := client.Database("api-gateway")
+	db := client.Database(dbname)
 	return &Db{db}, nil
 }
