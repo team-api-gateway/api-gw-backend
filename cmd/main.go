@@ -1,3 +1,10 @@
+// @Version 1.0.0
+// @Title API-Gateway
+// @Description Backend for the API-Gateway Software-Architectures Project
+// @Server http://www.fake.com Server-1
+// @Security AuthorizationHeader read write
+// @SecurityScheme AuthorizationHeader http bearer Input your token
+
 package main
 
 import (

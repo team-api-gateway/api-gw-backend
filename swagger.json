@@ -1,0 +1,286 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API-Gateway",
+    "description": "Backend for the API-Gateway Software-Architectures Project",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://www.fake.com",
+      "description": " Server-1"
+    }
+  ],
+  "paths": {
+    "/apis": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "List of IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.handler.ArrayOfIds"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.handler.ErrorObject"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "apis"
+        ],
+        "summary": "Get ids and titles of all apis",
+        "description": " Get the ids and titles of all apis that are stored in the database"
+      }
+    },
+    "/apis/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Customized API",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.CustomizableAPI"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.handler.ErrorObject"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "apis"
+        ],
+        "summary": "Get details for one api",
+        "description": " Get the details for one specified api",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the api",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string",
+              "description": "Id of the api"
+            }
+          }
+        ]
+      }
+    },
+    "/apis/{id}/update": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Customized API",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.CustomizableAPI"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.handler.ErrorObject"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "apis"
+        ],
+        "summary": "Customize the api",
+        "description": " Update the description and the selection state for endpoints in a api",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the api",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string",
+              "description": "Id of the api"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.CustomizableAPI"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "github.com.team-api-gateway.api-gw-backend.internal.domain.CustomizableAPI": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "spec": {
+            "type": "object",
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.CustomizableT"
+          },
+          "selections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "selected": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "github.com.team-api-gateway.api-gw-backend.internal.domain.CustomizableT": {
+        "type": "object",
+        "properties": {
+          "paths": {
+            "type": "object",
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.CustomizedPaths"
+          }
+        }
+      },
+      "github.com.team-api-gateway.api-gw-backend.internal.domain.CustomizedPaths": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.PathItem"
+          }
+        }
+      },
+      "github.com.team-api-gateway.api-gw-backend.internal.domain.Operation": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "github.com.team-api-gateway.api-gw-backend.internal.domain.PathItem": {
+        "type": "object",
+        "properties": {
+          "delete": {
+            "type": "object",
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.Operation"
+          },
+          "get": {
+            "type": "object",
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.Operation"
+          },
+          "head": {
+            "type": "object",
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.Operation"
+          },
+          "options": {
+            "type": "object",
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.Operation"
+          },
+          "patch": {
+            "type": "object",
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.Operation"
+          },
+          "post": {
+            "type": "object",
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.Operation"
+          },
+          "put": {
+            "type": "object",
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.Operation"
+          },
+          "trace": {
+            "type": "object",
+            "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.domain.Operation"
+          }
+        }
+      },
+      "github.com.team-api-gateway.api-gw-backend.internal.handler.ArrayOfIds": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.handler.ID"
+        }
+      },
+      "github.com.team-api-gateway.api-gw-backend.internal.handler.ErrorObject": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          }
+        }
+      },
+      "github.com.team-api-gateway.api-gw-backend.internal.handler.ID": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AuthorizationHeader": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Inuput your token"
+      }
+    }
+  },
+  "security": [
+    {
+      "AuthorizationHeader": []
+    }
+  ]
+}

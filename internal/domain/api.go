@@ -16,13 +16,13 @@ type Selection struct {
 }
 
 type CustomizableT struct {
-	Paths      CustomizedPaths     `json:"paths,omitempty" bson:",omitempty"`
-	Components openapi3.Components `json:"components,omitempty" bson:",omitempty"`
+	Paths CustomizedPaths `json:"paths,omitempty" bson:",omitempty"`
 }
 type CustomizableAPI struct {
-	ApiId      string         `bson:"_ref" json:"-"`
+	ApiId      string         `bson:"_ref" json:"id"`
 	Spec       *CustomizableT `json:"spec" bson:",inline"`
 	Selections []Selection    `json:"selections,omitempty" bson:",omitempty"`
+	Username   string         `json:"username,omitempty"`
 }
 type CustomizedPaths map[string]*PathItem
 
@@ -37,5 +37,5 @@ type PathItem struct {
 	Trace   *Operation `json:"trace,omitempty" bson:",omitempty"`
 }
 type Operation struct {
-	Description *string `json:"description,omitempty" bson:",omitempty"`
+	Description *string `json:"description" bson:",omitempty"`
 }

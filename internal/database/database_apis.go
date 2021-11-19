@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
@@ -24,12 +25,12 @@ func (db *Db) GetApis() ([]domain.API, error) {
 	}
 	return apis, nil
 }
-func (db *Db) GetApi(id string) (domain.API, error) {
+func (db *Db) GetApi(id string) (domain.CustomizableAPI, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	cursor := db.Collection("apis").FindOne(ctx, bson.M{"_id": id})
 	if cursor.Err() != nil {
-		return domain.API{}, cursor.Err()
+		return domain.CustomizableAPI{}, cursor.Err()
 	}
 	result := domain.API{}
 	cursor.Decode(&result)
@@ -68,7 +69,7 @@ func (db *Db) GetApi(id string) (domain.API, error) {
 
 		err := mergo.Merge(&result, customizedPart, mergo.WithOverride)
 		if err != nil {
-			return domain.API{}, err
+			return domain.CustomizableAPI{}, err
 		}
 		for key, path := range result.Spec.Paths {
 			if path.Delete != nil && !selectionExists(result.Selections, key, http.MethodDelete) {
@@ -96,10 +97,15 @@ func (db *Db) GetApi(id string) (domain.API, error) {
 				result.Selections = append(result.Selections, domain.Selection{Path: key, Method: http.MethodTrace, Selected: false})
 			}
 		}
-		return result, nil
+		bytes, _ := json.Marshal(result)
+		var c domain.CustomizableAPI
+		json.Unmarshal(bytes, &c)
+		return c, nil
 	}
-
-	return result, nil
+	bytes, _ := json.Marshal(result)
+	var c domain.CustomizableAPI
+	json.Unmarshal(bytes, &c)
+	return c, nil
 }
 
 func selectionExists(selections []domain.Selection, path string, method string) bool {

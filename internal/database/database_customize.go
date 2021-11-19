@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (db *Db) CustomizeApi(id string, custom domain.CustomizableAPI) (domain.API, error) {
+func (db *Db) CustomizeApi(id string, custom domain.CustomizableAPI) (domain.CustomizableAPI, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	custom.ApiId = id
@@ -16,12 +16,12 @@ func (db *Db) CustomizeApi(id string, custom domain.CustomizableAPI) (domain.API
 	if cursor.Err() != nil {
 		_, err := db.Collection("customized").InsertOne(ctx, custom)
 		if err != nil {
-			return domain.API{}, err
+			return domain.CustomizableAPI{}, err
 		}
 	} else {
 		_, err := db.Collection("customized").ReplaceOne(ctx, bson.M{"_ref": custom.ApiId}, custom)
 		if err != nil {
-			return domain.API{}, err
+			return domain.CustomizableAPI{}, err
 		}
 	}
 	return db.GetApi(custom.ApiId)
