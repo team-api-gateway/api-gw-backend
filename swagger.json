@@ -198,6 +198,23 @@
         "properties": {
           "description": {
             "type": "string"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "in": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },

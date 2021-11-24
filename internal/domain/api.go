@@ -37,5 +37,11 @@ type PathItem struct {
 	Trace   *Operation `json:"trace,omitempty" bson:",omitempty"`
 }
 type Operation struct {
-	Description *string `json:"description" bson:",omitempty"`
+	Description *string     `json:"description" bson:",omitempty"`
+	Parameters  []Parameter `json:"parameters,omitempty" bson:",omitempty"`
+}
+type Parameter struct {
+	Description string `json:"description"`
+	Name        string `json:"name"`
+	In          string `json:"in" bson:",omitempty"`
 }
