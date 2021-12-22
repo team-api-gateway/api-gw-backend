@@ -26,6 +26,127 @@ func (db *Db) GetApis() ([]domain.API, error) {
 	return apis, nil
 }
 
+func (db *Db) GetResultSpec(id string) (openapi3.T, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cursor := db.Collection("apis").FindOne(ctx, bson.M{"_id": id})
+	if cursor.Err() != nil {
+		return openapi3.T{}, cursor.Err()
+	}
+	result := domain.API{}
+	cursor.Decode(&result)
+
+	customizedPart := domain.CustomizableAPI{}
+	cursor = db.Collection("customized").FindOne(ctx, bson.M{"_ref": id})
+	if cursor.Err() == nil {
+		cursor.Decode(&customizedPart)
+	}
+
+	newPaths := openapi3.Paths{}
+
+	// merge operation descriptions and parameter descriptions
+	for key, path := range result.Spec.Paths {
+		if path.Get != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Get != nil && customizedPart.Spec.Paths[key].Get.Description != nil {
+			result.Spec.Paths[key].Get.Description = *customizedPart.Spec.Paths[key].Get.Description
+		}
+		if path.Get != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Get != nil && len(customizedPart.Spec.Paths[key].Get.Parameters) > 0 {
+			result.Spec.Paths[key].Get.Parameters = mergeParameters(result.Spec.Paths[key].Get.Parameters, customizedPart.Spec.Paths[key].Get.Parameters)
+		}
+		if path.Delete != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Delete != nil && customizedPart.Spec.Paths[key].Delete.Description != nil {
+			result.Spec.Paths[key].Delete.Description = *customizedPart.Spec.Paths[key].Delete.Description
+		}
+		if path.Delete != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Delete != nil && len(customizedPart.Spec.Paths[key].Delete.Parameters) > 0 {
+			result.Spec.Paths[key].Delete.Parameters = mergeParameters(result.Spec.Paths[key].Delete.Parameters, customizedPart.Spec.Paths[key].Delete.Parameters)
+		}
+		if path.Head != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Head != nil && customizedPart.Spec.Paths[key].Head.Description != nil {
+			result.Spec.Paths[key].Head.Description = *customizedPart.Spec.Paths[key].Head.Description
+		}
+		if path.Head != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Head != nil && len(customizedPart.Spec.Paths[key].Head.Parameters) > 0 {
+			result.Spec.Paths[key].Head.Parameters = mergeParameters(result.Spec.Paths[key].Head.Parameters, customizedPart.Spec.Paths[key].Head.Parameters)
+		}
+		if path.Trace != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Trace != nil && customizedPart.Spec.Paths[key].Trace.Description != nil {
+			result.Spec.Paths[key].Trace.Description = *customizedPart.Spec.Paths[key].Trace.Description
+		}
+		if path.Trace != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Trace != nil && len(customizedPart.Spec.Paths[key].Trace.Parameters) > 0 {
+			result.Spec.Paths[key].Trace.Parameters = mergeParameters(result.Spec.Paths[key].Trace.Parameters, customizedPart.Spec.Paths[key].Trace.Parameters)
+		}
+		if path.Options != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Options != nil && customizedPart.Spec.Paths[key].Options.Description != nil {
+			result.Spec.Paths[key].Options.Description = *customizedPart.Spec.Paths[key].Options.Description
+		}
+		if path.Options != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Options != nil && len(customizedPart.Spec.Paths[key].Options.Parameters) > 0 {
+			result.Spec.Paths[key].Options.Parameters = mergeParameters(result.Spec.Paths[key].Options.Parameters, customizedPart.Spec.Paths[key].Options.Parameters)
+		}
+		if path.Post != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Post != nil && customizedPart.Spec.Paths[key].Post.Description != nil {
+			result.Spec.Paths[key].Post.Description = *customizedPart.Spec.Paths[key].Post.Description
+		}
+		if path.Post != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Post != nil && len(customizedPart.Spec.Paths[key].Post.Parameters) > 0 {
+			result.Spec.Paths[key].Post.Parameters = mergeParameters(result.Spec.Paths[key].Post.Parameters, customizedPart.Spec.Paths[key].Post.Parameters)
+		}
+		if path.Patch != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Patch != nil && customizedPart.Spec.Paths[key].Patch.Description != nil {
+			result.Spec.Paths[key].Patch.Description = *customizedPart.Spec.Paths[key].Patch.Description
+		}
+		if path.Patch != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Patch != nil && len(customizedPart.Spec.Paths[key].Patch.Parameters) > 0 {
+			result.Spec.Paths[key].Patch.Parameters = mergeParameters(result.Spec.Paths[key].Patch.Parameters, customizedPart.Spec.Paths[key].Patch.Parameters)
+		}
+		if path.Put != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Put != nil && customizedPart.Spec.Paths[key].Put.Description != nil {
+			result.Spec.Paths[key].Put.Description = *customizedPart.Spec.Paths[key].Put.Description
+		}
+		if path.Put != nil && customizedPart.Spec != nil && customizedPart.Spec.Paths[key] != nil && customizedPart.Spec.Paths[key].Put != nil && len(customizedPart.Spec.Paths[key].Put.Parameters) > 0 {
+			result.Spec.Paths[key].Put.Parameters = mergeParameters(result.Spec.Paths[key].Put.Parameters, customizedPart.Spec.Paths[key].Put.Parameters)
+		}
+
+		for _, sel := range customizedPart.Selections {
+			if sel.Selected && sel.Path == key {
+				switch sel.Method {
+				case "Get":
+					if newPaths[key] == nil {
+						newPaths[key] = &openapi3.PathItem{}
+					}
+					newPaths[key].Get = result.Spec.Paths[key].Get
+				case "Delete":
+					if newPaths[key] == nil {
+						newPaths[key] = &openapi3.PathItem{}
+					}
+					newPaths[key].Delete = result.Spec.Paths[key].Delete
+				case "Head":
+					if newPaths[key] == nil {
+						newPaths[key] = &openapi3.PathItem{}
+					}
+					newPaths[key].Head = result.Spec.Paths[key].Head
+				case "Trace":
+					if newPaths[key] == nil {
+						newPaths[key] = &openapi3.PathItem{}
+					}
+					newPaths[key].Trace = result.Spec.Paths[key].Trace
+				case "Options":
+					if newPaths[key] == nil {
+						newPaths[key] = &openapi3.PathItem{}
+					}
+					newPaths[key].Options = result.Spec.Paths[key].Options
+				case "Post":
+					if newPaths[key] == nil {
+						newPaths[key] = &openapi3.PathItem{}
+					}
+					newPaths[key].Post = result.Spec.Paths[key].Post
+				case "Patch":
+					if newPaths[key] == nil {
+						newPaths[key] = &openapi3.PathItem{}
+					}
+					newPaths[key].Patch = result.Spec.Paths[key].Patch
+				case "Put":
+					if newPaths[key] == nil {
+						newPaths[key] = &openapi3.PathItem{}
+					}
+					newPaths[key].Put = result.Spec.Paths[key].Put
+				}
+			}
+		}
+	}
+	result.Spec.Paths = newPaths
+
+	return *result.Spec, nil
+}
+
 func (db *Db) GetApi(id string) (domain.CustomizableAPI, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

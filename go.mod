@@ -3,6 +3,7 @@ module github.com/team-api-gateway/api-gw-backend
 go 1.16
 
 require (
+	github.com/Azure/azure-sdk-for-go/sdk/azidentity v0.12.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/apimanagement/armapimanagement v0.2.0
 	github.com/getkin/kin-openapi v0.80.0
 	github.com/ghodss/yaml v1.0.0

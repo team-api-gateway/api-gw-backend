@@ -19,6 +19,7 @@ func (h *handler) Routes() *chi.Mux {
 
 	router.Get("/apis", H(h.GetApis))
 	router.Get("/apis/{id}", H(h.GetApi))
+	router.Get("/apis/{id}/spec", H(h.GetSpec))
 	router.Post("/apis/{id}/update", H(h.CustomizeApi))
 
 	return router
@@ -87,4 +88,9 @@ func (h *handler) GetApis(w http.ResponseWriter, r *http.Request) (interface{}, 
 func (h *handler) GetApi(w http.ResponseWriter, r *http.Request) (interface{}, error) {
 	id := chi.URLParam(r, "id")
 	return h.Db.GetApi(id)
+}
+
+func (h *handler) GetSpec(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	id := chi.URLParam(r, "id")
+	return h.Db.GetResultSpec(id)
 }
