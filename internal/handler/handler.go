@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/team-api-gateway/api-gw-backend/internal/azure"
 	"github.com/team-api-gateway/api-gw-backend/internal/database"
 	"github.com/team-api-gateway/api-gw-backend/internal/domain"
 )
@@ -20,6 +22,7 @@ func (h *handler) Routes() *chi.Mux {
 	router.Get("/apis", H(h.GetApis))
 	router.Get("/apis/{id}", H(h.GetApi))
 	router.Get("/apis/{id}/spec", H(h.GetSpec))
+	router.Put("/apis/{id}/spec", H(h.UploadSpec))
 	router.Post("/apis/{id}/update", H(h.CustomizeApi))
 
 	return router
@@ -93,4 +96,22 @@ func (h *handler) GetApi(w http.ResponseWriter, r *http.Request) (interface{}, e
 func (h *handler) GetSpec(w http.ResponseWriter, r *http.Request) (interface{}, error) {
 	id := chi.URLParam(r, "id")
 	return h.Db.GetResultSpec(id)
+}
+
+// @Title Upload a spec
+// @Description Upload a spec to the azure api managment gateway
+// @Param  id path string true "Id of the api"
+// @Failure  500  object  ErrorObject  "ErrorResponse"
+// @Resource apis
+// @Route /apis/{id}/spec [put]
+func (h *handler) UploadSpec(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	id := chi.URLParam(r, "id")
+	host := os.Getenv("SELF_HOST")
+	return nil, azure.UploadSpec(`{
+		"properties": {
+		  "format": "openapi-link",
+		  "value": "` + host + `/apis/` + id + `/spec",
+		  "path": "petstore"
+		}
+	  }`)
 }
