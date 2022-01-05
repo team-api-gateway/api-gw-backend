@@ -87,6 +87,50 @@
         ]
       }
     },
+    "/apis/{id}/spec": {
+      "put": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.handler.ErrorObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.team-api-gateway.api-gw-backend.internal.handler.ErrorObject"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "apis"
+        ],
+        "summary": "Upload a spec",
+        "description": " Upload a spec to the azure api managment gateway",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the api",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "string",
+              "description": "Id of the api"
+            }
+          }
+        ]
+      }
+    },
     "/apis/{id}/update": {
       "post": {
         "responses": {

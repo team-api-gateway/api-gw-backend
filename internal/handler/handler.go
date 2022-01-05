@@ -101,6 +101,7 @@ func (h *handler) GetSpec(w http.ResponseWriter, r *http.Request) (interface{}, 
 // @Title Upload a spec
 // @Description Upload a spec to the azure api managment gateway
 // @Param  id path string true "Id of the api"
+// @Success 200 object ErrorObject "Success"
 // @Failure  500  object  ErrorObject  "ErrorResponse"
 // @Resource apis
 // @Route /apis/{id}/spec [put]
