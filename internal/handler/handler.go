@@ -108,11 +108,21 @@ func (h *handler) GetSpec(w http.ResponseWriter, r *http.Request) (interface{}, 
 func (h *handler) UploadSpec(w http.ResponseWriter, r *http.Request) (interface{}, error) {
 	id := chi.URLParam(r, "id")
 	host := os.Getenv("SELF_HOST")
-	return nil, azure.UploadSpec(`{
+
+	spec, err := h.Db.GetResultSpec(id)
+	if err != nil {
+		return nil, err
+	}
+	if len(spec.Paths) == 0 {
+		fmt.Println("no endpoints selected - removing api")
+		return nil, azure.DeleteSpec(id)
+	}
+
+	return nil, azure.UploadSpec(id, `{
 		"properties": {
 		  "format": "openapi-link",
-		  "value": "` + host + `/apis/` + id + `/spec",
-		  "path": "petstore"
+		  "value": "`+host+`/apis/`+id+`/spec",
+		  "path": "`+id+`"
 		}
 	  }`)
 }

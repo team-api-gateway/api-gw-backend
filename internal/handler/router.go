@@ -44,7 +44,11 @@ func H(f func(w http.ResponseWriter, r *http.Request) (interface{}, error)) func
 		if err != nil {
 			RespondWithError(w, err)
 		} else {
-			RespondWithJSON(w, 200, result)
+			if result == nil {
+				RespondWithJSON(w, 200, MakeError(200, "Success", "Operation was successful"))
+			} else {
+				RespondWithJSON(w, 200, result)
+			}
 		}
 	}
 }

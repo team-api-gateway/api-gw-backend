@@ -97,43 +97,43 @@ func (db *Db) GetResultSpec(id string) (openapi3.T, error) {
 
 		for _, sel := range customizedPart.Selections {
 			if sel.Selected && sel.Path == key {
-				switch sel.Method {
-				case "Get":
+				switch strings.ToLower(sel.Method) {
+				case "get":
 					if newPaths[key] == nil {
 						newPaths[key] = &openapi3.PathItem{}
 					}
 					newPaths[key].Get = result.Spec.Paths[key].Get
-				case "Delete":
+				case "delete":
 					if newPaths[key] == nil {
 						newPaths[key] = &openapi3.PathItem{}
 					}
 					newPaths[key].Delete = result.Spec.Paths[key].Delete
-				case "Head":
+				case "head":
 					if newPaths[key] == nil {
 						newPaths[key] = &openapi3.PathItem{}
 					}
 					newPaths[key].Head = result.Spec.Paths[key].Head
-				case "Trace":
+				case "trace":
 					if newPaths[key] == nil {
 						newPaths[key] = &openapi3.PathItem{}
 					}
 					newPaths[key].Trace = result.Spec.Paths[key].Trace
-				case "Options":
+				case "options":
 					if newPaths[key] == nil {
 						newPaths[key] = &openapi3.PathItem{}
 					}
 					newPaths[key].Options = result.Spec.Paths[key].Options
-				case "Post":
+				case "post":
 					if newPaths[key] == nil {
 						newPaths[key] = &openapi3.PathItem{}
 					}
 					newPaths[key].Post = result.Spec.Paths[key].Post
-				case "Patch":
+				case "patch":
 					if newPaths[key] == nil {
 						newPaths[key] = &openapi3.PathItem{}
 					}
 					newPaths[key].Patch = result.Spec.Paths[key].Patch
-				case "Put":
+				case "put":
 					if newPaths[key] == nil {
 						newPaths[key] = &openapi3.PathItem{}
 					}
