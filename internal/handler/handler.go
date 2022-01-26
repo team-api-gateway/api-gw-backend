@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/team-api-gateway/api-gw-backend/internal/azure"
@@ -24,8 +26,12 @@ func (h *handler) Routes() *chi.Mux {
 	router.Get("/apis/{id}/spec", H(h.GetSpec))
 	router.Put("/apis/{id}/spec", H(h.UploadSpec))
 	router.Post("/apis/{id}/update", H(h.CustomizeApi))
+	router.Post("/set-self-host/{self-host}", H(h.SetSelfHost))
 
 	return router
+}
+func (h *handler) SetSelfHost(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	return nil, os.Setenv("SELF_HOST", "https://"+chi.URLParam(r, "self-host"))
 }
 
 func NewHandler(db *database.Db) *handler {
@@ -107,7 +113,7 @@ func (h *handler) GetSpec(w http.ResponseWriter, r *http.Request) (interface{}, 
 // @Route /apis/{id}/spec [put]
 func (h *handler) UploadSpec(w http.ResponseWriter, r *http.Request) (interface{}, error) {
 	id := chi.URLParam(r, "id")
-	host := os.Getenv("SELF_HOST")
+	//host := os.Getenv("SELF_HOST")
 
 	spec, err := h.Db.GetResultSpec(id)
 	if err != nil {
@@ -117,12 +123,24 @@ func (h *handler) UploadSpec(w http.ResponseWriter, r *http.Request) (interface{
 		fmt.Println("no endpoints selected - removing api")
 		return nil, azure.DeleteSpec(id)
 	}
-
-	return nil, azure.UploadSpec(id, `{
+	jsonString, err := json.Marshal(spec)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(string(jsonString))
+	content := `{
 		"properties": {
-		  "format": "openapi-link",
-		  "value": "`+host+`/apis/`+id+`/spec",
-		  "path": "`+id+`"
+		  "format": "openapi+json",
+		  "value": "` + strings.ReplaceAll(string(jsonString), `"`, `\"`) + `",
+		  "path": "` + strings.ReplaceAll(spec.Info.Title, " ", "-") + `",
+		  "subscriptionRequired": false
 		}
-	  }`)
+	  }`
+	err = azure.UploadSpec(id, content)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("upload was successful")
+	time.Sleep(15 * time.Second)
+	return nil, azure.AddToProduct(id)
 }

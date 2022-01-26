@@ -30,7 +30,7 @@ func main() {
 	}
 
 	crawl := crawler.New([]string{
-		"https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/petstore.yaml",
+		"https://gist.githubusercontent.com/neinkob15/51f88128f392921fa07628d0a17f8487/raw/04814a678d7bece550fb23ce9670e69f24986c02/gistfile1.txt",
 		"https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/callback-example.json",
 		"https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/link-example.yaml",
 	})
@@ -53,7 +53,7 @@ func main() {
 	h := handler.NewHandler(db)
 
 	router.Mount("/", h.Routes())
-
+	fmt.Println("APP IS WORKING!!!")
 	err = http.ListenAndServe(":8080", router)
 	if err != nil {
 		fmt.Println(err)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -34,8 +35,13 @@ func Connect() (*Db, error) {
 	if user == "" && password == "" {
 		dsn = "mongodb://" + host + ":" + port
 	} else {
-		dsn = "mongodb://" + user + ":" + password + "@" + host + ":" + port
+		if strings.Contains(host, "azure") {
+			dsn = "mongodb://" + user + ":" + password + "@" + host + ":" + port + "/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@hska-lab@"
+		} else {
+			dsn = "mongodb://" + user + ":" + password + "@" + host + ":" + port
+		}
 	}
+	fmt.Println(dsn)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
